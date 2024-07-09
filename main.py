@@ -69,10 +69,20 @@ def update_income(income_id):
     return jsonify(updating_income.to_dict())
 
 
+@app.route('/incomes/<int:income_id>', methods=['DELETE'])
+def delete_income(income_id):
+    deleting_income = Income.query.get(income_id)
+    if not deleting_income:
+        return jsonify({"error": "Income not found"}), 404
+
+    db.session.delete(deleting_income)
+    db.session.commit()
+    return jsonify({"message": "Income deleted successfully"}), 200
+
 
 #SAVINGS ROUTES
 
-#Route for querying all savings from the database    
+#getting all the savings from the database    
 @app.route('/savings/', methods=['GET'])
 def get_all_savings():
     savings = Savings.query.all()
@@ -80,7 +90,7 @@ def get_all_savings():
     return jsonify(savings_list)
 
 
-#Route for querying a specific savings by id from the database
+#getting a specific saving from the database using its id
 @app.route('/savings/<int:saving_id>', methods=['GET'])
 def get_saving(saving_id):
     saving = Savings.query.get(saving_id)
@@ -90,7 +100,7 @@ def get_saving(saving_id):
         return jsonify({"error": "Saving not found"}), 404
     
 
-#Route for creating/adding a new savings in the database
+#creating a new saving in the database
 @app.route('/savings', methods=['POST'])
 def create_saving():
     data = request.json
@@ -105,7 +115,7 @@ def create_saving():
     db.session.commit()
     return jsonify(new_saving.to_dict()), 201
 
-#Route for changing values in all of your savings attributes
+#updating a specific saving in the database using its id
 @app.route('/savings/<int:saving_id>', methods=['PUT'])
 def update_saving(saving_id):
     updating_saving = Savings.query.get(saving_id)
@@ -122,15 +132,28 @@ def update_saving(saving_id):
     db.session.commit()
     return jsonify(updating_saving.to_dict())
 
+#deleting a specific saving from the database using its id
+@app.route('/savings/<int:saving_id>', methods=['DELETE'])
+def delete_saving(saving_id):
+    deleting_saving = Savings.query.get(saving_id)
+    if not deleting_saving:
+        return jsonify({"error": "Saving not found"}), 404
+
+    db.session.delete(deleting_saving)
+    db.session.commit()
+    return jsonify({"message": "Saving deleted successfully"}), 200
+
 
 
 #EXPENSE ROUTES
+#getting all expenses from the database
 @app.route('/expenses', methods=['GET'])
 def get_all_expenses():
     expenses= Expenses.query.all()
     expenses_list = [expense.to_dict() for expense in expenses]
     return jsonify(expenses_list)
 
+#getting a specific expense from the database using its id
 @app.route('/expenses/<int:expense_id>', methods=['GET'])
 def get_expense(expense_id):
     expense=Expenses.query.get(expense_id)
@@ -139,7 +162,7 @@ def get_expense(expense_id):
     else:
         return jsonify({"error": "Expense not found"}), 404
     
-
+#creating a new expense in the database
 @app.route('/expenses', methods=['POST'])
 def create_expense():
     data = request.json
@@ -154,7 +177,7 @@ def create_expense():
     db.session.commit()
     return jsonify(new_expense.to_dict()), 201
 
-#Route for updating an expense 
+#updating an expense in the database using its id
 @app.route('/expenses/<int:expense_id>', methods=['PUT'])
 def update_expense(expense_id):
     updating_expense = Expenses.query.get(expense_id)
@@ -170,9 +193,21 @@ def update_expense(expense_id):
 
     db.session.commit()
     return jsonify(updating_expense.to_dict())
+
+#deleting an expense from the database using its id
+@app.route('/expenses/<int:expenses_id>', methods=['DELETE'])
+def delete_expense(expenses_id):
+    deleting_expense = Expenses.query.get(expenses_id)
+    if not deleting_expense:
+        return jsonify({"error": "Expense not found"}), 404
+
+    db.session.delete(deleting_expense)
+    db.session.commit()
+    return jsonify({"message": "Expense deleted successfully"}), 200
     
 
 #CATEGORY ROUTES
+#getting all categories from the database
 @app.route('/categories', methods=['GET'])
 def get_all_categories():
     categories = Categories.query.all()
@@ -180,7 +215,7 @@ def get_all_categories():
     return jsonify(categories_list)
 
 
-
+#getting a specific category from the database via its id
 @app.route('/categories/<int:category_id>', methods=['GET'])
 def get_category(category_id):
     category = Categories.query.get(category_id)
@@ -190,7 +225,7 @@ def get_category(category_id):
         return jsonify({"error": "Category not found"}), 404
     
 
-
+#creating a new category in the database
 @app.route('/categories', methods=['POST'])
 def create_category():
     data = request.json
@@ -200,7 +235,7 @@ def create_category():
     db.session.commit()
     return jsonify(new_category.to_dict()), 201
 
-#Route for updating a category
+#updating a category in the database using its id
 @app.route('/categories/<int:category_id>', methods=['PUT'])
 def update_category(category_id):
     updating_category = Categories.query.get(category_id)
@@ -212,9 +247,25 @@ def update_category(category_id):
 
     db.session.commit()
     return jsonify(updating_category.to_dict())
+
+#deleting a category from the database using its id
+@app.route('/categories/<int:categories_id>', methods=['DELETE'])
+def delete_category(categories_id):
+    print (categories_id)
+    deleting_category = Categories.query.get(categories_id)
+    if not deleting_category:
+        return jsonify({"error": "Category not found"}), 404
+    print (deleting_category)
+    Expenses.query.filter_by(category_id=categories_id).delete()
+    Savings.query.filter_by(category_id=categories_id).delete()
+    db.session.delete(deleting_category)
+    db.session.commit()
+    
+    return jsonify({"message": "Category deleted successfully"}), 200
     
 
 #USER ROUTES
+#fetching all users from the database
 @app.route('/users', methods=['GET'])
 def get_all_users():
     users = User.query.all()
@@ -222,7 +273,7 @@ def get_all_users():
     return jsonify(users_list)
 
 
-
+#getting a specific user from the database using their id
 @app.route('/users/<int:user_id>', methods=['GET'])
 def get_user(user_id):
     user = User.query.get(user_id)
@@ -231,7 +282,7 @@ def get_user(user_id):
     else:
         return jsonify({"error": "User not found"}), 404
     
-
+#creating a new user 
 @app.route('/users', methods=['POST'])
 def create_user():
     data = request.json
@@ -257,6 +308,20 @@ def update_user(user_id):
 
     db.session.commit()
     return jsonify(updating_user.to_dict())
+
+#deleteing a user from the database
+@app.route('/users/<int:user_id>', methods=['DELETE'])
+def delete_user(user_id):
+    deleting_user = User.query.get(user_id)
+    if not deleting_user:
+        return jsonify({"error": "User not found"}), 404
+    Expenses.query.filter_by(user_id=user_id).delete()
+    Savings.query.filter_by(user_id=user_id).delete()
+    Income.query.filter_by(user_id=user_id).delete()
+
+    db.session.delete(deleting_user)
+    db.session.commit()
+    return jsonify({"message": "User deleted successfully"}), 200
     
 
 if __name__ == '__main__':
